@@ -1,12 +1,10 @@
 {
-  "name": "vsm-quiz-app",
+  "name": "vsm-quiz-functions",
   "version": "1.0.0",
-  "description": "Quiz app for VSM 2025",
+  "description": "Dependencies for Netlify Functions",
   "private": true,
-  "scripts": {
-    "build": "echo 'No client build step needed'"
-  },
   "dependencies": {
-    "@google/genai": "^1.9.0"
+    "@google/genai": "^1.9.0",
+    "@netlify/functions": "^4.1.10"
   }
 }
