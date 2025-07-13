@@ -1,11 +1,18 @@
 {
-  "name": "vsm-quiz-functions",
+  "name": "viens-et-suis-moi-2025-quiz",
   "version": "1.0.0",
-  "description": "Dependencies for Netlify Functions",
-  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
   "dependencies": {
-    "@google/genai": "^1.9.0",
-    "@netlify/functions": "^4.1.10",
-    "react-router-dom": "^6.23.0"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.23.0",
+    "firebase": "^10.7.1"
+  },
+  "devDependencies": {
+    "vite": "^5.4.0"
   }
 }
