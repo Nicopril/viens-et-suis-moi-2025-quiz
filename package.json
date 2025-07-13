@@ -5,6 +5,7 @@
   "private": true,
   "dependencies": {
     "@google/genai": "^1.9.0",
-    "@netlify/functions": "^4.1.10"
+    "@netlify/functions": "^4.1.10",
+    "react-router-dom": "^6.23.0"
   }
 }
