@@ -42,7 +42,7 @@ const HomePage: React.FC = () => {
         <div className="bg-white p-8 rounded-xl shadow-lg border border-slate-200">
           <div className="flex flex-col md:flex-row items-center gap-6">
             <img
-              src="/nelson.jpg"
+              src="/president-nelson.jpg"
               alt="Président Russell M. Nelson"
               className="w-32 h-32 rounded-full object-cover shadow-md"
             />
