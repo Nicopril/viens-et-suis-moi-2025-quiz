@@ -1,14 +1,3 @@
-<<<<<<< HEAD
-import { GoogleGenAI } from "@google/genai";
-
-export default async (req: Request) => {
-  const apiKey = process.env.GEMINI_API_KEY;
-  const genAI = new GoogleGenAI(apiKey);
-  const result = await genAI.generateText("Donne-moi une question biblique");
-  return new Response(JSON.stringify({ question: result }), {
-    headers: { "Content-Type": "application/json" }
-  });
-=======
 import { GoogleGenAI, Type } from "@google/genai";
 import type { Handler, HandlerEvent, HandlerContext } from "@netlify/functions";
 
@@ -62,28 +51,17 @@ export const handler: Handler = async (event: HandlerEvent, context: HandlerCont
     `;
     
     const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: prompt,
-        config: {
-          responseMimeType: "application/json",
-          responseSchema: quizSchema,
-        },
+      model: "gemini-2.5-flash",
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: quizSchema,
+      },
     });
 
     const jsonText = response.text.trim();
-    // Pas besoin de parser, on renvoie directement le texte JSON
+
     return {
       statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
-      body: jsonText,
-    };
+      headers: { 'Conten
 
-  } catch (error) {
-    console.error("Erreur dans la Netlify Function:", error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: "Impossible de générer le quiz via le serveur." }),
-    };
-  }
->>>>>>> 49007508af3342cf5fe12f561a0bc932956eaf1b
-};
