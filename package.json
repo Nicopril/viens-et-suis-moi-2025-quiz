@@ -7,9 +7,21 @@
     "preview": "vite preview"
   },
   "dependencies": {
+<<<<<<< HEAD
     "firebase": "^10.7.1"
   },
   "devDependencies": {
     "vite": "^5.0.0"
   }
 }
+=======
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.23.0",
+    "firebase": "^10.7.1"
+  },
+  "devDependencies": {
+    "vite": "^5.4.0"
+  }
+}
+>>>>>>> 49007508af3342cf5fe12f561a0bc932956eaf1b
