@@ -63,5 +63,6 @@ export const handler: Handler = async (event: HandlerEvent, context: HandlerCont
 
     return {
       statusCode: 200,
-      headers: { 'Conten
+      headers: { 'Content-Type': 'application/json' }
+
 
