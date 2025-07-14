@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useUser } from '../contexts/UserContext';
 import { useNavigate } from 'react-router-dom';
@@ -41,16 +40,26 @@ const HomePage: React.FC = () => {
 
       <section className="max-w-2xl mx-auto">
         <div className="bg-white p-8 rounded-xl shadow-lg border border-slate-200">
-            <div className="flex flex-col md:flex-row items-center gap-6">
-                <img src="https://assets.churchofjesuschrist.org/media/4/8/48b48f682d3381a1a55f9a562496a77196010537/russell_m_nelson_official_portrait_2018.jpeg" alt="Président Russell M. Nelson" className="w-32 h-32 rounded-full object-cover shadow-md" />
-                <blockquote className="border-l-4 border-sky-500 pl-4 italic text-slate-700">
-                    <p>« Je vous exhorte à aller au-delà de votre capacité spirituelle actuelle de recevoir la révélation personnelle, car le Seigneur a promis que ‘si tu cherches, tu recevras révélation sur révélation, connaissance sur connaissance, afin que tu connaisses les mystères et les choses paisibles, ce qui apporte la joie, ce qui apporte la vie éternelle’ (D&A 42:61). »</p>
-                    <cite className="block mt-2 font-semibold not-italic">- Russell M. Nelson, « Révélation pour l’Église, révélation pour notre vie »</cite>
-                </blockquote>
-            </div>
+          <div className="flex flex-col md:flex-row items-center gap-6">
+            <img
+              src="/nelson.jpg"
+              alt="Président Russell M. Nelson"
+              className="w-32 h-32 rounded-full object-cover shadow-md"
+            />
+            <blockquote className="border-l-4 border-sky-500 pl-4 italic text-slate-700">
+              <p>
+                « Je vous exhorte à aller au-delà de votre capacité spirituelle actuelle de recevoir la révélation personnelle,
+                car le Seigneur a promis que ‘si tu cherches, tu recevras révélation sur révélation, connaissance sur connaissance,
+                afin que tu connaisses les mystères et les choses paisibles, ce qui apporte la joie, ce qui apporte la vie éternelle’ (D&A 42:61). »
+              </p>
+              <cite className="block mt-2 font-semibold not-italic">
+                - Russell M. Nelson, « Révélation pour l’Église, révélation pour notre vie »
+              </cite>
+            </blockquote>
+          </div>
         </div>
       </section>
-      
+
       <div className="grid md:grid-cols-2 gap-8">
         <section className="bg-white p-8 rounded-xl shadow-lg border border-slate-200">
           <h2 className="text-2xl font-bold text-center mb-4 text-sky-800">Participez au Concours !</h2>
@@ -86,7 +95,9 @@ const HomePage: React.FC = () => {
             {winner ? (
               <div className="space-y-1">
                 <p className="text-3xl font-bold">{winner.name}</p>
-                <p className="text-lg font-medium">avec un score de <span className="font-extrabold">{winner.score}</span> points !</p>
+                <p className="text-lg font-medium">
+                  avec un score de <span className="font-extrabold">{winner.score}</span> points !
+                </p>
                 <p className="text-sm opacity-80">(Semaine {winner.weekNumber} de {winner.year})</p>
               </div>
             ) : (
@@ -100,3 +111,4 @@ const HomePage: React.FC = () => {
 };
 
 export default HomePage;
+
