@@ -24,20 +24,22 @@ const quizSchema = {
 };
 
 export const handler: Handler = async (event: HandlerEvent, context: HandlerContext) => {
-  if (event.httpMethod !== 'POST') {
+  if (event.httpMethod !== "POST") {
     return {
       statusCode: 405,
-      body: JSON.stringify({ error: 'Méthode non autorisée' }),
+      body: JSON.stringify({ error: "Méthode non autorisée" }),
     };
   }
 
   try {
-    const { lessonTitle, day } = JSON.parse(event.body || '{}');
+    const { lessonTitle, day } = JSON.parse(event.body || "{}");
 
     if (!lessonTitle || !day) {
       return {
         statusCode: 400,
-        body: JSON.stringify({ error: 'Les paramètres lessonTitle et day sont requis.' }),
+        body: JSON.stringify({
+          error: "Les paramètres lessonTitle et day sont requis.",
+        }),
       };
     }
 
@@ -49,7 +51,7 @@ export const handler: Handler = async (event: HandlerEvent, context: HandlerCont
       La bonne réponse doit être l'une des 4 options.
       Retourne le résultat exclusivement au format JSON, en respectant le schéma fourni. N'inclus aucun texte, formatage ou backticks de code en dehors de l'objet JSON.
     `;
-    
+
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
       contents: prompt,
@@ -63,6 +65,19 @@ export const handler: Handler = async (event: HandlerEvent, context: HandlerCont
 
     return {
       statusCode: 200,
-      headers: { 'Content-Type': 'application/json' }
+      headers: { "Content-Type": "application/json" },
+      body: jsonText,
+    };
+  } catch (error) {
+    console.error("Erreur dans la Netlify Function:", error);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({
+         error: "Impossible de générer le quiz via le serveur.",
+      }),
+    };
+  }
+};
+
 
 
