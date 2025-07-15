@@ -1,3 +1,4 @@
+// pages/QuizPage.tsx
 import React, { useState, useEffect, useCallback } from 'react';
 import { LESSONS_2025, CURRENT_LESSON_ID, DAYS_OF_WEEK } from '../constants';
 import { Lesson, CompletedQuizzes } from '../types';
@@ -5,39 +6,6 @@ import QuizModal from '../components/QuizModal';
 import * as firestoreService from '../services/storageService';
 import { useUser } from '../contexts/UserContext';
 import ScoreHistory from '../components/ScoreHistory';
-import React, { useState } from 'react';
-import LessonSelector from '../components/LessonSelector';
-import { lessons } from '../data/lessons';
-
-const Home = () => {
-  const [lessonId, setLessonId] = useState(1);
-  const [selectedDay, setSelectedDay] = useState("Lundi"); // ou autre gestion
-
-  const handleGenerateQuiz = async () => {
-    const lessonTitle = lessons.find((l) => l.id === lessonId)?.title;
-    const body = JSON.stringify({ lessonTitle, day: selectedDay });
-
-    const res = await fetch("/api/generate-quiz", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body,
-    });
-
-    const data = await res.json();
-    console.log(data);
-  };
-
-  return (
-    <div>
-      <LessonSelector selectedLessonId={lessonId} onChange={setLessonId} />
-      <button onClick={handleGenerateQuiz} className="btn-primary">
-        🎯 Générer le quiz
-      </button>
-    </div>
-  );
-};
-
-export default Home;
 
 const QuizPage: React.FC = () => {
   const { user } = useUser();
@@ -139,11 +107,9 @@ const QuizPage: React.FC = () => {
               Quiz pour : {selectedLesson.title}
             </h2>
             {isLoading ? (
-              <>
-                <div className="text-center p-8">
-                  <p>Chargement des quiz...</p>
-                </div>
-              </>
+              <div className="text-center p-8">
+                <p>Chargement des quiz...</p>
+              </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                 {DAYS_OF_WEEK.map(day => {
@@ -172,7 +138,6 @@ const QuizPage: React.FC = () => {
           </div>
         )}
 
-        {/* Score History visible tout le temps, même en cours de chargement */}
         <div className="mt-10">
           <ScoreHistory />
         </div>
@@ -182,4 +147,3 @@ const QuizPage: React.FC = () => {
 };
 
 export default QuizPage;
-
