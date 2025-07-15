@@ -1,13 +1,13 @@
 import { QuizQuestion } from '../types';
 
-export const generateQuiz = async (lessonTitle: string, day: string): Promise<QuizQuestion[]> => {
+export const generateQuiz = async (scriptureReference: string): Promise<QuizQuestion[]> => {
   try {
     const response = await fetch('/api/generate-quiz', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ lessonTitle, day }),
+      body: JSON.stringify({ scriptureReference }), // ✅ clé correcte attendue par le backend
     });
 
     if (!response.ok) {
@@ -17,11 +17,11 @@ export const generateQuiz = async (lessonTitle: string, day: string): Promise<Qu
 
     const quizData = await response.json();
 
-    // Valider la structure reçue
+    // ✅ Validation de la structure
     if (!Array.isArray(quizData) || quizData.some(q => !q.question || !q.options || !q.correctAnswer || !q.reference)) {
       throw new Error("Les données du quiz reçues du serveur sont malformées.");
     }
-    
+
     return quizData as QuizQuestion[];
 
   } catch (error) {

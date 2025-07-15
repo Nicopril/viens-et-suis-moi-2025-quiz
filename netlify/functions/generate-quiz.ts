@@ -2,13 +2,11 @@ import { GoogleGenAI, Type } from "@google/genai";
 import type { Handler, HandlerEvent, HandlerContext } from "@netlify/functions";
 
 const API_KEY = process.env.API_KEY;
-
-if (!API_KEY) {
-  throw new Error("La variable d'environnement API_KEY n'est pas définie.");
-}
+if (!API_KEY) throw new Error("La variable d'environnement API_KEY est manquante.");
 
 const ai = new GoogleGenAI({ apiKey: API_KEY });
 
+// Schéma attendu pour le quiz généré
 const quizSchema = {
   type: Type.ARRAY,
   items: {
@@ -32,25 +30,30 @@ export const handler: Handler = async (event: HandlerEvent, context: HandlerCont
   }
 
   try {
-    const { lessonTitle, day } = JSON.parse(event.body || "{}");
-
-    if (!lessonTitle || !day) {
+    const { reference } = JSON.parse(event.body || "{}");
+    if (!reference) {
       return {
         statusCode: 400,
-        body: JSON.stringify({
-          error: "Les paramètres lessonTitle et day sont requis.",
-        }),
+        body: JSON.stringify({ error: "Le champ 'reference' est requis." }),
       };
     }
 
     const prompt = `
-      Tu es un expert du programme "Viens et Suis-Moi" de l'Église de Jésus-Christ des Saints des Derniers Jours.
-      Pour la leçon de 2025 intitulée "${lessonTitle}", génère un quiz à choix multiples de 5 questions basé sur les enseignements du jour : "${day}".
-      Chaque question doit avoir 4 options de réponse, avec une seule réponse correcte.
-      Pour chaque question, fournis la référence scripturaire exacte (livre, chapitre, versets) qui justifie la bonne réponse.
-      La bonne réponse doit être l'une des 4 options.
-      Retourne le résultat exclusivement au format JSON, en respectant le schéma fourni. N'inclus aucun texte, formatage ou backticks de code en dehors de l'objet JSON.
-    `;
+Tu es un expert du programme "Viens et Suis-Moi" de l'Église de Jésus-Christ des Saints des Derniers Jours.
+Génère un quiz de 5 questions à choix multiples basées uniquement sur les écritures suivantes : ${reference}.
+Chaque question doit avoir exactement 4 propositions, dont une seule correcte.
+Ajoute une courte référence scripturaire précise pour chaque bonne réponse (ex: D&A 76:22).
+Ne donne aucune explication.
+Réponds uniquement avec un tableau JSON strictement conforme à ce format :
+[
+  {
+    "question": "...",
+    "options": ["A", "B", "C", "D"],
+    "correctAnswer": "C",
+    "reference": "Doctrine et Alliances 1:5"
+  }
+]
+`;
 
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
@@ -72,12 +75,12 @@ export const handler: Handler = async (event: HandlerEvent, context: HandlerCont
     console.error("Erreur dans la Netlify Function:", error);
     return {
       statusCode: 500,
-      body: JSON.stringify({
-         error: "Impossible de générer le quiz via le serveur.",
-      }),
+      body: JSON.stringify({ error: "Erreur lors de la génération du quiz." }),
     };
   }
 };
+
+
 
 
 
