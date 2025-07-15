@@ -56,6 +56,6 @@ export const LESSONS_2025: Lesson[] = [
   { id: 52, title: "La restauration continue de l'Évangile", reference: "Thèmes de l'Évangile" }
 ];
 
-export const CURRENT_LESSON_ID = 29;
+export const CURRENT_LESSON_ID = 24;
 
 export const DAYS_OF_WEEK = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"];

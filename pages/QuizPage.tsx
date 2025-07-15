@@ -5,6 +5,7 @@ import { Lesson, CompletedQuizzes } from '../types';
 import QuizModal from '../components/QuizModal';
 import * as firestoreService from '../services/storageService';
 import { useUser } from '../contexts/UserContext';
+import ScoreHistory from '../components/ScoreHistory';
 
 const QuizPage: React.FC = () => {
   const { user } = useUser();
@@ -104,6 +105,7 @@ const QuizPage: React.FC = () => {
                 <div className="text-center p-8">
                     <p>Chargement des quiz...</p>
                 </div>
+                <ScoreHistory />
             ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                 {DAYS_OF_WEEK.map(day => {

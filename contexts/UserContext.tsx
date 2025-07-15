@@ -1,7 +1,5 @@
-
-import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User } from '../types';
-import * as firestoreService from '../services/storageService';
 
 interface UserContextType {
   user: User | null;
@@ -10,39 +8,52 @@ interface UserContextType {
   isLoading: boolean;
 }
 
-const UserContext = createContext<UserContextType | undefined>(undefined);
+const UserContext = createContext<UserContextType>({
+  user: null,
+  login: async () => {},
+  logout: () => {},
+  isLoading: false,
+});
 
-export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const useUser = () => useContext(UserContext);
+
+export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    // Check for new week on app load - this can trigger winner calculation
-    firestoreService.checkAndResetForNewWeek().catch(console.error);
-    
-    // Load user from session storage on initial load
-    const storedUser = firestoreService.getUserFromSession();
-    if (storedUser) {
-      setUser(storedUser);
+  // 🔑 Génère ou récupère un identifiant utilisateur persistant
+  const getOrCreateUserId = (): string => {
+    let id = localStorage.getItem('userId');
+    if (!id) {
+      id = crypto.randomUUID(); // Identifiant unique
+      localStorage.setItem('userId', id);
     }
-    setIsLoading(false);
+    return id;
+  };
+
+  // 🧠 Tente de récupérer un utilisateur enregistré localement
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
   }, []);
 
   const login = async (name: string) => {
     setIsLoading(true);
     try {
-      const newUser = await firestoreService.findOrCreateUser(name);
-      firestoreService.saveUserToSession(newUser);
-      setUser(newUser);
-    } catch (error) {
-      console.error("Login failed:", error);
+      const id = getOrCreateUserId();
+      const userData = { id, name };
+      localStorage.setItem('user', JSON.stringify(userData));
+      setUser(userData);
     } finally {
       setIsLoading(false);
     }
   };
 
   const logout = () => {
-    firestoreService.clearUserFromSession();
+    localStorage.removeItem('user');
+    localStorage.removeItem('userId');
     setUser(null);
   };
 
@@ -53,10 +64,4 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   );
 };
 
-export const useUser = (): UserContextType => {
-  const context = useContext(UserContext);
-  if (context === undefined) {
-    throw new Error('useUser must be used within a UserProvider');
-  }
-  return context;
-};
+

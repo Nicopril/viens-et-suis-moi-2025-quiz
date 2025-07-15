@@ -159,4 +159,13 @@ export const checkAndResetForNewWeek = async (): Promise<void> => {
         console.log("Winner calculated and saved:", winnerData);
       }
   }
+export const getUserScores = async (user: User): Promise<ScoreEntry[]> => {
+  const scoresRef = collection(db, SCORES_COLLECTION);
+  const q = query(scoresRef, where("userId", "==", user.id));
+  const snapshot = await getDocs(q);
+
+  return snapshot.docs.map(doc => ({
+    id: doc.id,
+    ...(doc.data() as ScoreEntry),
+  }));
 };
