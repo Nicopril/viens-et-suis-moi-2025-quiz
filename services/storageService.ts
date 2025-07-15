@@ -1,7 +1,5 @@
-import { 
-  collection, getDocs, addDoc, query, where, getFirestore, 
-  Timestamp, writeBatch, limit 
-} from 'firebase/firestore';
+// ✅ storageService.ts avec normalisation du nom d’utilisateur
+import { collection, getDocs, addDoc, query, where, getFirestore, Timestamp, writeBatch, limit } from 'firebase/firestore';
 import { app } from './firebase';
 import { User, ScoreEntry, WeeklyWinner, CompletedQuizzes } from '../types';
 
@@ -11,7 +9,6 @@ const USERS_COLLECTION = 'users';
 const SCORES_COLLECTION = 'scores';
 const WINNERS_COLLECTION = 'weeklyWinners';
 
-// Helper to get week number and year
 const getWeekInfo = (d: Date): { weekNumber: number, year: number } => {
   d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
   d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
@@ -21,17 +18,23 @@ const getWeekInfo = (d: Date): { weekNumber: number, year: number } => {
   return { weekNumber, year };
 };
 
-// User Management
+// ✅ Gestion des utilisateurs avec normalisation
+type FirestoreUser = {
+  name: string;
+  normalizedName: string;
+};
+
 export const findOrCreateUser = async (name: string): Promise<User> => {
+  const normalizedName = name.trim().toLowerCase();
   const usersRef = collection(db, USERS_COLLECTION);
-  const q = query(usersRef, where("name", "==", name));
+  const q = query(usersRef, where("normalizedName", "==", normalizedName));
   const querySnapshot = await getDocs(q);
 
   if (!querySnapshot.empty) {
     const userDoc = querySnapshot.docs[0];
     return { id: userDoc.id, ...userDoc.data() } as User;
   } else {
-    const newUser = { name };
+    const newUser: FirestoreUser = { name, normalizedName };
     const docRef = await addDoc(usersRef, newUser);
     return { id: docRef.id, ...newUser };
   }
@@ -50,7 +53,6 @@ export const clearUserFromSession = (): void => {
   sessionStorage.removeItem('vsm_quiz_user');
 };
 
-// Score Management
 export const addScore = async (user: User, lessonId: number, day: string, score: number): Promise<void> => {
   const scoreEntry: Omit<ScoreEntry, 'id'> = {
     userId: user.id,
@@ -63,12 +65,11 @@ export const addScore = async (user: User, lessonId: number, day: string, score:
   await addDoc(collection(db, SCORES_COLLECTION), scoreEntry);
 };
 
-// Completed Quizzes Management
 export const getCompletedQuizzes = async (user: User): Promise<CompletedQuizzes> => {
   const scoresRef = collection(db, SCORES_COLLECTION);
   const q = query(scoresRef, where("userId", "==", user.id));
   const querySnapshot = await getDocs(q);
-  
+
   const completed: CompletedQuizzes = {};
   querySnapshot.forEach(doc => {
     const data = doc.data() as ScoreEntry;
@@ -80,28 +81,30 @@ export const getCompletedQuizzes = async (user: User): Promise<CompletedQuizzes>
   return completed;
 };
 
-// Winner Management
+export const getUserScores = async (user: User): Promise<ScoreEntry[]> => {
+  const scoresRef = collection(db, SCORES_COLLECTION);
+  const q = query(scoresRef, where("userId", "==", user.id));
+  const snapshot = await getDocs(q);
+
+  return snapshot.docs.map(doc => ({
+    id: doc.id,
+    ...(doc.data() as ScoreEntry),
+  }));
+};
+
 export const getLatestWinner = async (): Promise<WeeklyWinner | null> => {
   const winnersRef = collection(db, WINNERS_COLLECTION);
   const q = query(winnersRef, limit(1));
   const querySnapshot = await getDocs(q);
-
-  if (querySnapshot.empty) {
-    return null;
-  }
-  return querySnapshot.docs[0].data() as WeeklyWinner;
+  return querySnapshot.empty ? null : querySnapshot.docs[0].data() as WeeklyWinner;
 };
 
 export const checkAndResetForNewWeek = async (): Promise<void> => {
   const { weekNumber: currentWeek, year: currentYear } = getWeekInfo(new Date());
-
   const winnersRef = collection(db, WINNERS_COLLECTION);
   const q = query(winnersRef, where("weekNumber", "==", currentWeek), where("year", "==", currentYear));
   const winnerSnapshot = await getDocs(q);
-
-  if (!winnerSnapshot.empty) {
-    return;
-  }
+  if (!winnerSnapshot.empty) return;
 
   const oneWeekAgo = new Date();
   oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
@@ -122,11 +125,7 @@ export const checkAndResetForNewWeek = async (): Promise<void> => {
     endOfWeek.setHours(23, 59, 59, 999);
 
     const scoresRef = collection(db, SCORES_COLLECTION);
-    const scoresQuery = query(
-      scoresRef,
-      where('date', '>=', Timestamp.fromDate(startOfWeek)),
-      where('date', '<=', Timestamp.fromDate(endOfWeek))
-    );
+    const scoresQuery = query(scoresRef, where('date', '>=', Timestamp.fromDate(startOfWeek)), where('date', '<=', Timestamp.fromDate(endOfWeek)));
 
     const scoresSnapshot = await getDocs(scoresQuery);
     if (scoresSnapshot.empty) {
@@ -159,16 +158,4 @@ export const checkAndResetForNewWeek = async (): Promise<void> => {
       console.log("Winner calculated and saved:", winnerData);
     }
   }
-};
-
-// Exported separately to avoid export inside a function block
-export const getUserScores = async (user: User): Promise<ScoreEntry[]> => {
-  const scoresRef = collection(db, SCORES_COLLECTION);
-  const q = query(scoresRef, where("userId", "==", user.id));
-  const snapshot = await getDocs(q);
-
-  return snapshot.docs.map(doc => ({
-    id: doc.id,
-    ...(doc.data() as ScoreEntry),
-  }));
 };
