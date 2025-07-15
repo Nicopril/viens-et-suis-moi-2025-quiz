@@ -11,7 +11,9 @@ const ScoreHistory: React.FC = () => {
 
   useEffect(() => {
     if (user) {
-      getUserScores(user).then(setScores).catch(console.error);
+      getUserScores(user)
+        .then(setScores)
+        .catch(console.error);
     }
   }, [user]);
 
@@ -32,7 +34,7 @@ const ScoreHistory: React.FC = () => {
                   📘 Leçon {score.lessonId} - <strong>{score.day}</strong> : <span className="font-bold">{score.score} pts</span>
                 </p>
                 <p className="text-sm text-slate-400">
-                  {format(score.date.toDate(), "EEEE d MMMM yyyy", { locale: fr })}
+                  {format(score.date?.toDate?.() || new Date(), "EEEE d MMMM yyyy", { locale: fr })}
                 </p>
               </li>
             ))}
@@ -43,3 +45,4 @@ const ScoreHistory: React.FC = () => {
 };
 
 export default ScoreHistory;
+
