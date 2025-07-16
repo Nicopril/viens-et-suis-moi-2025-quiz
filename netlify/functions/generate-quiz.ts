@@ -2,7 +2,7 @@ import { GoogleGenAI, Type } from "@google/genai";
 import type { Handler, HandlerEvent, HandlerContext } from "@netlify/functions";
 
 const API_KEY = process.env.API_KEY;
-if (!API_KEY) throw new Error("API_KEY manquant");
+if (!API_KEY) throw new Error("API_KEY manquant.");
 
 const ai = new GoogleGenAI({ apiKey: API_KEY });
 
@@ -22,36 +22,29 @@ const quizSchema = {
 
 export const handler: Handler = async (event: HandlerEvent, context: HandlerContext) => {
   if (event.httpMethod !== "POST") {
-    return {
-      statusCode: 405,
-      body: JSON.stringify({ error: "Méthode non autorisée" }),
-    };
+    return { statusCode: 405, body: JSON.stringify({ error: "Méthode non autorisée" }) };
   }
 
   try {
-    const { reference } = JSON.parse(event.body || "{}");
-
+    const { reference } = JSON.parse(event.body || '{}');
     if (!reference) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: "Le paramètre 'reference' est requis." }),
-      };
+      return { statusCode: 400, body: JSON.stringify({ error: "Le paramètre 'reference' est requis." }) };
     }
 
     const prompt = `
 Tu es un expert du programme "Viens et Suis-Moi" de l'Église de Jésus-Christ des Saints des Derniers Jours.
-Génère un quiz de 5 questions à choix multiples basé uniquement sur les écritures suivantes : ${reference}.
-Chaque question doit avoir 4 propositions de réponse, dont une seule correcte.
-Fournis la référence scripturaire précise pour justifier la bonne réponse.
-Retourne un tableau JSON conforme au schéma :
+Génère un quiz à choix multiples de 5 questions uniquement basé sur les passages suivants : ${reference}.
+Chaque question doit inclure 4 choix de réponse, une seule correcte, et la référence scripturaire précise à l’appui.
+Retourne un tableau JSON strictement conforme à ce format :
 [
   {
     "question": "...",
-    "options": ["A", "B", "C", "D"],
-    "correctAnswer": "C",
-    "reference": "Doctrine et Alliances 1:5"
+    "options": ["...", "...", "...", "..."],
+    "correctAnswer": "...",
+    "reference": "..."
   }
 ]
+Pas d’explication, pas de texte en dehors du JSON.
 `;
 
     const response = await ai.models.generateContent({
@@ -63,19 +56,14 @@ Retourne un tableau JSON conforme au schéma :
       },
     });
 
-    const jsonText = response.text.trim();
-
     return {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },
-      body: jsonText,
+      body: response.text.trim(),
     };
-  } catch (error) {
-    console.error("Erreur serveur:", error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: "Impossible de générer le quiz." }),
-    };
+  } catch (err: any) {
+    console.error("Erreur quiz:", err);
+    return { statusCode: 500, body: JSON.stringify({ error: "Erreur lors de la génération du quiz." }) };
   }
 };
 

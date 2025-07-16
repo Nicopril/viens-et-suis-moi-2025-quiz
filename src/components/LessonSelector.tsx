@@ -1,26 +1,26 @@
 import React from 'react';
 import { lessons } from '../data/lessons';
 
-type Props = {
+interface LessonSelectorProps {
   selectedLessonId: number;
   onChange: (id: number) => void;
-};
+}
 
-const LessonSelector: React.FC<Props> = ({ selectedLessonId, onChange }) => {
+const LessonSelector: React.FC<LessonSelectorProps> = ({ selectedLessonId, onChange }) => {
   return (
-    <div className="my-4">
-      <label htmlFor="lesson" className="block text-slate-700 font-semibold mb-1">
-        📚 Choisissez une leçon :
+    <div className="mb-6">
+      <label htmlFor="lesson-select" className="block text-slate-700 font-semibold mb-2">
+        Choisissez une leçon :
       </label>
       <select
-        id="lesson"
+        id="lesson-select"
         value={selectedLessonId}
-        onChange={(e) => onChange(Number(e.target.value))}
-        className="border border-slate-300 rounded px-3 py-2 w-full"
+        onChange={(e) => onChange(parseInt(e.target.value, 10))}
+        className="w-full p-3 text-lg border border-slate-300 rounded-lg focus:ring-sky-500 focus:border-sky-500 bg-slate-50"
       >
         {lessons.map((lesson) => (
           <option key={lesson.id} value={lesson.id}>
-            {lesson.title}
+            Leçon {lesson.id} : {lesson.reference}
           </option>
         ))}
       </select>

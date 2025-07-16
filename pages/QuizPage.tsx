@@ -1,4 +1,3 @@
-// pages/QuizPage.tsx
 import React, { useState, useEffect, useCallback } from 'react';
 import { LESSONS_2025, CURRENT_LESSON_ID, DAYS_OF_WEEK } from '../constants';
 import { Lesson, CompletedQuizzes } from '../types';
@@ -10,7 +9,7 @@ import ScoreHistory from '../components/ScoreHistory';
 const QuizPage: React.FC = () => {
   const { user } = useUser();
   const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null);
-  const [activeQuiz, setActiveQuiz] = useState<{ lesson: Lesson, day: string } | null>(null);
+  const [activeQuiz, setActiveQuiz] = useState<{ reference: string, day: string } | null>(null);
   const [completedQuizzes, setCompletedQuizzes] = useState<CompletedQuizzes>({});
   const [isLoading, setIsLoading] = useState(true);
 
@@ -26,7 +25,7 @@ const QuizPage: React.FC = () => {
         const completed = await firestoreService.getCompletedQuizzes(user);
         setCompletedQuizzes(completed);
       } catch (error) {
-        console.error("Failed to load completed quizzes:", error);
+        console.error("Erreur chargement historique :", error);
       } finally {
         setIsLoading(false);
       }
@@ -38,20 +37,20 @@ const QuizPage: React.FC = () => {
   }, [loadCompletedQuizzes]);
 
   const handleLessonChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const lessonId = parseInt(e.target.value, 10);
-    const lesson = LESSONS_2025.find(l => l.id === lessonId);
+    const id = parseInt(e.target.value, 10);
+    const lesson = LESSONS_2025.find(l => l.id === id);
     setSelectedLesson(lesson || null);
   };
 
   const handleStartQuiz = (day: string) => {
     if (selectedLesson) {
-      setActiveQuiz({ lesson: selectedLesson, day });
+      setActiveQuiz({ reference: selectedLesson.reference, day });
     }
   };
 
   const handleCloseQuiz = async (score: number | null) => {
-    if (user && activeQuiz && score !== null) {
-      await firestoreService.addScore(user, activeQuiz.lesson.id, activeQuiz.day, score);
+    if (user && activeQuiz && score !== null && selectedLesson) {
+      await firestoreService.addScore(user, selectedLesson.id, activeQuiz.day, score);
       await loadCompletedQuizzes();
     }
     setActiveQuiz(null);
@@ -64,8 +63,8 @@ const QuizPage: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto">
       {activeQuiz && (
-        <QuizModal 
-          lessonTitle={activeQuiz.lesson.title}
+        <QuizModal
+          reference={activeQuiz.reference}
           day={activeQuiz.day}
           onClose={handleCloseQuiz}
         />
@@ -74,19 +73,18 @@ const QuizPage: React.FC = () => {
       <div className="bg-white p-6 rounded-xl shadow-lg border border-slate-200">
         <h1 className="text-3xl font-bold text-sky-800 mb-2">Choisissez une leçon</h1>
         <p className="text-slate-500 mb-6">
-          Sélectionnez une leçon dans la liste déroulante pour afficher les quiz quotidiens.
+          Sélectionnez une leçon pour lancer un quiz quotidien.
         </p>
 
         <div className="bg-sky-50 border-l-4 border-sky-400 p-4 rounded-r-lg mb-6">
           <p className="text-sky-800">
-            <span className="font-bold">Info :</span> Nous étudions actuellement la{' '}
-            <span className="font-semibold">Leçon {CURRENT_LESSON_ID}</span> cette semaine.
-            N'hésitez pas à revisiter les leçons précédentes pour vous entraîner !
+            <span className="font-bold">Info :</span> Leçon actuelle :{' '}
+            <span className="font-semibold">n°{CURRENT_LESSON_ID}</span>. Vous pouvez revoir d’autres leçons si vous le souhaitez.
           </p>
         </div>
 
         <div className="mb-8">
-          <label htmlFor="lesson-select" className="sr-only">Sélectionner une leçon</label>
+          <label htmlFor="lesson-select" className="sr-only">Sélection de la leçon</label>
           <select
             id="lesson-select"
             value={selectedLesson?.id || ''}
@@ -95,7 +93,7 @@ const QuizPage: React.FC = () => {
           >
             {LESSONS_2025.map(lesson => (
               <option key={lesson.id} value={lesson.id}>
-                Leçon {lesson.id}: {lesson.title} ({lesson.reference})
+                Leçon {lesson.id}: {lesson.reference}
               </option>
             ))}
           </select>
@@ -104,11 +102,11 @@ const QuizPage: React.FC = () => {
         {selectedLesson && (
           <div>
             <h2 className="text-2xl font-semibold mb-4 text-center">
-              Quiz pour : {selectedLesson.title}
+              Quiz : {selectedLesson.reference}
             </h2>
             {isLoading ? (
               <div className="text-center p-8">
-                <p>Chargement des quiz...</p>
+                <p>Chargement des quiz complétés...</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
@@ -119,12 +117,11 @@ const QuizPage: React.FC = () => {
                       key={day}
                       onClick={() => handleStartQuiz(day)}
                       disabled={completed}
-                      className={`p-6 rounded-lg text-center font-bold text-lg transition-all duration-200 transform
-                        ${
-                          completed
-                            ? 'bg-green-100 text-green-700 cursor-not-allowed border-2 border-green-300'
-                            : 'bg-sky-500 text-white hover:bg-sky-600 hover:scale-105'
-                        }`}
+                      className={`p-6 rounded-lg text-center font-bold text-lg transition-all duration-200 transform ${
+                        completed
+                          ? 'bg-green-100 text-green-700 cursor-not-allowed border-2 border-green-300'
+                          : 'bg-sky-500 text-white hover:bg-sky-600 hover:scale-105'
+                      }`}
                     >
                       {day}
                       {completed && (
@@ -147,3 +144,4 @@ const QuizPage: React.FC = () => {
 };
 
 export default QuizPage;
+
