@@ -2,11 +2,10 @@ import { GoogleGenAI, Type } from "@google/genai";
 import type { Handler, HandlerEvent, HandlerContext } from "@netlify/functions";
 
 const API_KEY = process.env.API_KEY;
-if (!API_KEY) throw new Error("La variable d'environnement API_KEY est manquante.");
+if (!API_KEY) throw new Error("API_KEY manquant");
 
 const ai = new GoogleGenAI({ apiKey: API_KEY });
 
-// Schéma attendu pour le quiz généré
 const quizSchema = {
   type: Type.ARRAY,
   items: {
@@ -31,20 +30,20 @@ export const handler: Handler = async (event: HandlerEvent, context: HandlerCont
 
   try {
     const { reference } = JSON.parse(event.body || "{}");
+
     if (!reference) {
       return {
         statusCode: 400,
-        body: JSON.stringify({ error: "Le champ 'reference' est requis." }),
+        body: JSON.stringify({ error: "Le paramètre 'reference' est requis." }),
       };
     }
 
     const prompt = `
 Tu es un expert du programme "Viens et Suis-Moi" de l'Église de Jésus-Christ des Saints des Derniers Jours.
-Génère un quiz de 5 questions à choix multiples basées uniquement sur les écritures suivantes : ${reference}.
-Chaque question doit avoir exactement 4 propositions, dont une seule correcte.
-Ajoute une courte référence scripturaire précise pour chaque bonne réponse (ex: D&A 76:22).
-Ne donne aucune explication.
-Réponds uniquement avec un tableau JSON strictement conforme à ce format :
+Génère un quiz de 5 questions à choix multiples basé uniquement sur les écritures suivantes : ${reference}.
+Chaque question doit avoir 4 propositions de réponse, dont une seule correcte.
+Fournis la référence scripturaire précise pour justifier la bonne réponse.
+Retourne un tableau JSON conforme au schéma :
 [
   {
     "question": "...",
@@ -72,10 +71,10 @@ Réponds uniquement avec un tableau JSON strictement conforme à ce format :
       body: jsonText,
     };
   } catch (error) {
-    console.error("Erreur dans la Netlify Function:", error);
+    console.error("Erreur serveur:", error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: "Erreur lors de la génération du quiz." }),
+      body: JSON.stringify({ error: "Impossible de générer le quiz." }),
     };
   }
 };
