@@ -1,4 +1,4 @@
-.import React, { useState } from 'react';
+import React, { useState } from 'react';
 import LessonSelector from '../components/LessonSelector';
 import QuizModal from '../components/QuizModal';
 import { lessons } from '../data/lessons';
@@ -97,4 +97,3 @@ const QuizPage: React.FC = () => {
 };
 
 export default QuizPage;
-..
