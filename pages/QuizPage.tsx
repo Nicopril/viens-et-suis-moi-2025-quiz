@@ -3,7 +3,7 @@ import LessonSelector from '../src/components/LessonSelector';
 import QuizModal from '../components/QuizModal';
 import WeeklyRanking from '../src/components/WeeklyRanking'; // ✅ Import ajouté
 import { lessons } from '../src/data/lessons';
-import { useUser } from '../context/UserContext';
+import { useUser } from '../src/context/UserContext';
 
 const QuizPage: React.FC = () => {
   const { user, scores, markDayAsCompleted } = useUser();
