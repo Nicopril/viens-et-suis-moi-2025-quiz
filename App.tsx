@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { UserProvider, useUser } from './contexts/UserContext';
+import { UserProvider, useUser } from './context/UserContext';
 import HomePage from './pages/HomePage';
 import QuizPage from './pages/QuizPage';
 import Header from './components/Header';
