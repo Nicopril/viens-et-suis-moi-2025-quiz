@@ -1,5 +1,8 @@
 import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
 
+// ✅ Configuration depuis les variables d'environnement
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_API_KEY,
   authDomain: import.meta.env.VITE_AUTH_DOMAIN,
@@ -9,6 +12,9 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_APP_ID
 };
 
+// ✅ Initialisation de l'application Firebase
 const app = initializeApp(firebaseConfig);
 
-export { app };
+// ✅ Export des services Firebase
+export const auth = getAuth(app);
+export const db = getFirestore(app);

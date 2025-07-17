@@ -1,67 +1,69 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { User as FirebaseUser, onAuthStateChanged, signInAnonymously } from 'firebase/auth';
+import { auth } from '../services/firebase'; // Assure-toi que ce chemin est correct
 import { User } from '../types';
 
 interface UserContextType {
   user: User | null;
-  login: (name: string) => Promise<void>;
-  logout: () => void;
   isLoading: boolean;
+  login: () => Promise<void>;
+  logout: () => Promise<void>;
 }
 
 const UserContext = createContext<UserContextType>({
   user: null,
+  isLoading: true,
   login: async () => {},
-  logout: () => {},
-  isLoading: false,
+  logout: async () => {},
 });
 
 export const useUser = () => useContext(UserContext);
 
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // 🔑 Génère ou récupère un identifiant utilisateur persistant
-  const getOrCreateUserId = (): string => {
-    let id = localStorage.getItem('userId');
-    if (!id) {
-      id = crypto.randomUUID(); // Identifiant unique
-      localStorage.setItem('userId', id);
-    }
-    return id;
-  };
-
-  // 🧠 Tente de récupérer un utilisateur enregistré localement
+  // 🔄 Surveille l'état de l'utilisateur Firebase
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser: FirebaseUser | null) => {
+      if (firebaseUser) {
+        setUser({
+          id: firebaseUser.uid,
+          name: firebaseUser.isAnonymous ? 'Utilisateur anonyme' : firebaseUser.displayName || 'Utilisateur',
+        });
+      } else {
+        setUser(null);
+      }
+      setIsLoading(false);
+    });
+
+    return () => unsubscribe();
   }, []);
 
-  const login = async (name: string) => {
+  // 🔐 Connexion anonyme
+  const login = async () => {
     setIsLoading(true);
     try {
-      const id = getOrCreateUserId();
-      const userData = { id, name };
-      localStorage.setItem('user', JSON.stringify(userData));
-      setUser(userData);
+      await signInAnonymously(auth);
+    } catch (error) {
+      console.error('Erreur lors de la connexion anonyme :', error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem('user');
-    localStorage.removeItem('userId');
-    setUser(null);
+  // 🔓 Déconnexion
+  const logout = async () => {
+    try {
+      await auth.signOut();
+    } catch (error) {
+      console.error('Erreur lors de la déconnexion :', error);
+    }
   };
 
   return (
-    <UserContext.Provider value={{ user, login, logout, isLoading }}>
+    <UserContext.Provider value={{ user, isLoading, login, logout }}>
       {children}
     </UserContext.Provider>
   );
 };
-
-
