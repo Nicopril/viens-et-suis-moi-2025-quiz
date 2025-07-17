@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import LessonSelector from '../components/LessonSelector';
 import QuizModal from '../components/QuizModal';
+import WeeklyRanking from '../components/WeeklyRanking'; // ✅ Import ajouté
 import { lessons } from '../data/lessons';
 import { useUser } from '../context/UserContext';
 
@@ -85,6 +86,9 @@ const QuizPage: React.FC = () => {
         </ul>
       </div>
 
+      {/* ✅ Classement hebdomadaire ajouté */}
+      <WeeklyRanking lessonId={selectedLessonIndex} />
+
       {activeDay && (
         <QuizModal
           lessonTitle={currentLesson.title}
@@ -97,3 +101,4 @@ const QuizPage: React.FC = () => {
 };
 
 export default QuizPage;
+
