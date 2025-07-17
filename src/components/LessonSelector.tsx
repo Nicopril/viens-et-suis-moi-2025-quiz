@@ -2,11 +2,11 @@ import React from 'react';
 import { lessons } from '../data/lessons';
 
 interface LessonSelectorProps {
-  selectedLessonId: number;
-  onChange: (id: number) => void;
+  selectedIndex: number;
+  onChange: (index: number) => void;
 }
 
-const LessonSelector: React.FC<LessonSelectorProps> = ({ selectedLessonId, onChange }) => {
+const LessonSelector: React.FC<LessonSelectorProps> = ({ selectedIndex, onChange }) => {
   return (
     <div className="mb-6">
       <label htmlFor="lesson-select" className="block text-slate-700 font-semibold mb-2">
@@ -14,7 +14,7 @@ const LessonSelector: React.FC<LessonSelectorProps> = ({ selectedLessonId, onCha
       </label>
       <select
         id="lesson-select"
-        value={selectedLessonId}
+        value={selectedIndex}
         onChange={(e) => onChange(parseInt(e.target.value, 10))}
         className="w-full p-3 text-lg border border-slate-300 rounded-lg focus:ring-sky-500 focus:border-sky-500 bg-slate-50"
       >
