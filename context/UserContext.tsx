@@ -1,12 +1,18 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { User as FirebaseUser, onAuthStateChanged, signInAnonymously, updateProfile } from 'firebase/auth';
+import {
+  User as FirebaseUser,
+  onAuthStateChanged,
+  signInAnonymously,
+  signOut,
+  updateProfile
+} from 'firebase/auth';
 import { auth } from '../services/firebase';
 import { User } from '../types';
 
 interface UserContextType {
   user: User | null;
   isLoading: boolean;
-  login: (name: string) => Promise<void>; // ← accepte un nom
+  login: (name: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -39,25 +45,27 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => unsubscribe();
   }, []);
 
-  // ✅ Connexion anonyme avec nom personnalisé
-const login = async (name: string) => {
-  setIsLoading(true);
-  try {
-    const result = await signInAnonymously(auth);
-    if (result.user) {
-      await result.user.updateProfile({ displayName: name });
+  const login = async (name: string) => {
+    setIsLoading(true);
+    try {
+      const result = await signInAnonymously(auth);
+      if (result.user) {
+        await updateProfile(result.user, { displayName: name });
+        setUser({
+          id: result.user.uid,
+          name,
+        });
+      }
+    } catch (error) {
+      console.error('Erreur lors de la connexion anonyme :', error);
+    } finally {
+      setIsLoading(false);
     }
-  } catch (error) {
-    console.error('Erreur lors de la connexion anonyme :', error);
-  } finally {
-    setIsLoading(false);
-  }
-};
-
+  };
 
   const logout = async () => {
     try {
-      await auth.signOut();
+      await signOut(auth);
     } catch (error) {
       console.error('Erreur lors de la déconnexion :', error);
     }
@@ -69,4 +77,5 @@ const login = async (name: string) => {
     </UserContext.Provider>
   );
 };
+
 

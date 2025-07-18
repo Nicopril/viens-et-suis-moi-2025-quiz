@@ -11,6 +11,14 @@ const HomePage: React.FC = () => {
   const navigate = useNavigate();
   const [winner, setWinner] = useState<WeeklyWinner | null>(null);
 
+  // Rediriger après connexion
+  useEffect(() => {
+    if (user) {
+      navigate('/quiz');
+    }
+  }, [user, navigate]);
+
+  // Charger le dernier gagnant
   useEffect(() => {
     getLatestWinner().then(setWinner).catch(console.error);
   }, []);
@@ -19,7 +27,7 @@ const HomePage: React.FC = () => {
     e.preventDefault();
     if (name.trim() && !isLoading) {
       await login(name.trim());
-      navigate('/quiz'); // Navigue immédiatement après connexion
+      // La redirection se fait dans useEffect quand user est défini
     }
   };
 
@@ -106,3 +114,4 @@ const HomePage: React.FC = () => {
 };
 
 export default HomePage;
+
