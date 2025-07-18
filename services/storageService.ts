@@ -29,3 +29,17 @@ export const getUserScores = async (): Promise<UserScores> => {
 
   return docSnap.exists() ? (docSnap.data() as UserScores) : {};
 };
+/**
+ * Récupère le dernier gagnant de la semaine depuis Firestore
+ */
+export const getLatestWinner = async (): Promise<string | null> => {
+  const docRef = doc(db, 'weekly', 'latestWinner');
+  const docSnap = await getDoc(docRef);
+
+  if (docSnap.exists()) {
+    const data = docSnap.data();
+    return data?.winner || null;
+  }
+
+  return null;
+};
