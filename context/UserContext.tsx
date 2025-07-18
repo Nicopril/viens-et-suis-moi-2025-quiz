@@ -40,17 +40,20 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   // ✅ Connexion anonyme avec nom personnalisé
-  const login = async (name: string) => {
-    setIsLoading(true);
-    try {
-      const { user: anonUser } = await signInAnonymously(auth);
-      await updateProfile(anonUser, { displayName: name }); // ← enregistre le nom dans Firebase
-    } catch (error) {
-      console.error('Erreur lors de la connexion anonyme :', error);
-    } finally {
-      setIsLoading(false);
+const login = async (name: string) => {
+  setIsLoading(true);
+  try {
+    const result = await signInAnonymously(auth);
+    if (result.user) {
+      await result.user.updateProfile({ displayName: name });
     }
-  };
+  } catch (error) {
+    console.error('Erreur lors de la connexion anonyme :', error);
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   const logout = async () => {
     try {
