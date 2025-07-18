@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useUser } from '../contexts/UserContext';
+import { useUser } from '../context/UserContext';
 import { useNavigate } from 'react-router-dom';
 import { getLatestWinner } from '../services/storageService';
 import { WeeklyWinner } from '../types';
