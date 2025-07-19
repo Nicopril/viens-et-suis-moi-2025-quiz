@@ -13,6 +13,7 @@ const HomePage: React.FC = () => {
 
   // Rediriger après connexion
   useEffect(() => {
+     console.log("USER dans HomePage:", user);
     if (user) {
       navigate('/quiz');
     }
