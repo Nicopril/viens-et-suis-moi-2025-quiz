@@ -2,9 +2,13 @@
   command = "npm run build"
   publish = "dist"
   functions = "netlify/functions"
+  environment = { 
+    API_KEY = "AIzaSyDavrKUlA6gBH5yUnkwr5Sb3r5QpOGoifA" 
+  }
 
 [[redirects]]
   from = "/api/generate-quiz"
   to = "/.netlify/functions/generate-quiz"
   status = 200
+
 
