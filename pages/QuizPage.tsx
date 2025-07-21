@@ -12,6 +12,15 @@ const QuizPage: React.FC = () => {
 
   const currentLesson = lessons[selectedLessonIndex];
 
+  // ✅ Vérification de sécurité
+  if (!currentLesson) {
+    return (
+      <div className="p-4 text-center text-red-600">
+        Erreur : la leçon sélectionnée (index {selectedLessonIndex}) est introuvable. Veuillez en choisir une autre.
+      </div>
+    );
+  }
+
   const handleQuizComplete = (score: number | null) => {
     if (score !== null && activeDay) {
       markDayAsCompleted(selectedLessonIndex, activeDay, score);
@@ -101,4 +110,5 @@ const QuizPage: React.FC = () => {
 };
 
 export default QuizPage;
+
 
