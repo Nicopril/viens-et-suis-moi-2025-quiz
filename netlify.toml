@@ -4,6 +4,18 @@
   functions = "netlify/functions"
 
 [build.environment]
-  API_KEY = "AIzaSyDavrKUlA6gBH5yUnkwr5Sb3r5QpOGoifA"
+  VITE_API_KEY = "AIzaSyDavrKUlA6gBH5yUnkwr5Sb3r5QpOGoifA"
+  VITE_AUTH_DOMAIN = "viens-et-suis-moi-quiz-2025.firebaseapp.com"
+  VITE_PROJECT_ID = "viens-et-suis-moi-quiz-2025"
+  VITE_STORAGE_BUCKET = "viens-et-suis-moi-quiz-2025.appspot.com"
+  VITE_MESSAGING_SENDER_ID = "170003579949"
+  VITE_APP_ID = "1:170003579949:web:489880a9a6c1688cdd64a4"
+  GEMINI_API_KEY = "AIzaSyDavrKUlA6gBH5yUnkwr5Sb3r5QpOGoifA"
+
+[[redirects]]
+  from = "/api/generate-quiz"
+  to = "/.netlify/functions/generate-quiz"
+  status = 200
+
 
 
