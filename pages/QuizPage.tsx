@@ -1,22 +1,27 @@
 import React, { useState } from 'react';
 import LessonSelector from '../components/LessonSelector';
 import QuizModal from '../components/QuizModal';
-import WeeklyRanking from '../components/WeeklyRanking'; // ✅ Import ajouté
+import WeeklyRanking from '../components/WeeklyRanking';
 import { lessons } from '../data/lessons';
 import { useUser } from '../context/UserContext';
 
 const QuizPage: React.FC = () => {
   const { user, scores, markDayAsCompleted } = useUser();
-  const [selectedLessonIndex, setSelectedLessonIndex] = useState<number>(23); // Par défaut la leçon 24 (index 23)
+  const [selectedLessonIndex, setSelectedLessonIndex] = useState<number>(23); // Par défaut : leçon 24
   const [activeDay, setActiveDay] = useState<string | null>(null);
+
+  // 🔍 Logs de débogage
+  console.log("Nombre de leçons :", lessons.length);
+  console.log("Leçon 24 :", lessons[23]);
 
   const currentLesson = lessons[selectedLessonIndex];
 
-  // ✅ Vérification de sécurité
+  // ✅ Sécurité : si la leçon n'existe pas
   if (!currentLesson) {
     return (
-      <div className="p-4 text-center text-red-600">
-        Erreur : la leçon sélectionnée (index {selectedLessonIndex}) est introuvable. Veuillez en choisir une autre.
+      <div className="p-6 text-red-600 font-semibold">
+        Erreur : la leçon sélectionnée (index {selectedLessonIndex}) est introuvable. <br />
+        Vérifiez que le fichier <code>lessons.ts</code> est bien importé et contient au moins 24 leçons.
       </div>
     );
   }
@@ -95,7 +100,6 @@ const QuizPage: React.FC = () => {
         </ul>
       </div>
 
-      {/* ✅ Classement hebdomadaire ajouté */}
       <WeeklyRanking lessonId={selectedLessonIndex} />
 
       {activeDay && (
@@ -110,5 +114,6 @@ const QuizPage: React.FC = () => {
 };
 
 export default QuizPage;
+
 
 
