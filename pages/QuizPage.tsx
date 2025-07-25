@@ -7,21 +7,20 @@ import { useUser } from '../context/UserContext';
 
 const QuizPage: React.FC = () => {
   const { user, scores, markDayAsCompleted } = useUser();
-  const [selectedLessonIndex, setSelectedLessonIndex] = useState<number>(23); // Par défaut : leçon 24
+  const [selectedLessonIndex, setSelectedLessonIndex] = useState<number>(23);
   const [activeDay, setActiveDay] = useState<string | null>(null);
 
-  // 🔍 Logs de débogage
+  const userProgress = user?.progress || {}; // ✅ récupère les scores
+
   console.log("Nombre de leçons :", lessons.length);
   console.log("Leçon 24 :", lessons[23]);
 
   const currentLesson = lessons[selectedLessonIndex];
 
-  // ✅ Sécurité : si la leçon n'existe pas
   if (!currentLesson) {
     return (
       <div className="p-6 text-red-600 font-semibold">
-        Erreur : la leçon sélectionnée (index {selectedLessonIndex}) est introuvable. <br />
-        Vérifiez que le fichier <code>lessons.ts</code> est bien importé et contient au moins 24 leçons.
+        Erreur : la leçon sélectionnée (index {selectedLessonIndex}) est introuvable.
       </div>
     );
   }
@@ -33,11 +32,14 @@ const QuizPage: React.FC = () => {
     setActiveDay(null);
   };
 
-  const getDayStatus = (day: string): { completed: boolean; score?: number } => {
-    const dayScore = scores[selectedLessonIndex]?.[day];
+  // ✅ Corrigé et sécurisé
+  const getDayStatus = (lessonId: number, day: string) => {
+    const lessonProgress = userProgress[lessonId];
+    if (!lessonProgress) return { completed: false, score: undefined };
+    const dayData = lessonProgress[day];
     return {
-      completed: dayScore !== undefined,
-      score: dayScore,
+      completed: !!dayData,
+      score: dayData?.score,
     };
   };
 
@@ -52,8 +54,7 @@ const QuizPage: React.FC = () => {
 
       <div className="bg-blue-50 p-4 rounded mb-6">
         <p className="text-blue-700 text-sm">
-          <strong>Info :</strong> Leçon actuelle : <strong>n°{selectedLessonIndex + 1}</strong>. 
-          Vous pouvez revoir d’autres leçons si vous le souhaitez.
+          <strong>Info :</strong> Leçon actuelle : <strong>n°{selectedLessonIndex + 1}</strong>.
         </p>
       </div>
 
@@ -66,7 +67,7 @@ const QuizPage: React.FC = () => {
         <h2 className="text-xl font-semibold mb-4">Quiz : {currentLesson.reference}</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
           {daysOfWeek.map(day => {
-            const { completed } = getDayStatus(day);
+            const { completed } = getDayStatus(selectedLessonIndex, day);
             return (
               <button
                 key={day}
@@ -90,7 +91,7 @@ const QuizPage: React.FC = () => {
         <h2 className="text-lg font-semibold mb-3">📉 Historique de vos scores</h2>
         <ul className="list-disc pl-6 text-sm text-gray-700">
           {daysOfWeek.map(day => {
-            const score = getDayStatus(day).score;
+            const { score } = getDayStatus(selectedLessonIndex, day);
             return (
               <li key={day}>
                 {day} : {score !== undefined ? `${score} / 5` : 'Non tenté'}
@@ -114,6 +115,3 @@ const QuizPage: React.FC = () => {
 };
 
 export default QuizPage;
-
-
-
