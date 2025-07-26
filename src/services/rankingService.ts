@@ -1,7 +1,8 @@
 // src/services/rankingService.ts
-import { getFirestore, collection, getDocs } from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore"; // Retirer getFirestore ici
+import { db } from './firebase'; // Importe l'instance 'db' déjà initialisée de firebase.ts
 
-const db = getFirestore();
+// const db = getFirestore(); // <-- Supprimer cette ligne car 'db' est importé
 
 interface ScoreEntry {
   userId: string;
@@ -11,7 +12,7 @@ interface ScoreEntry {
 export const getWeeklyRanking = async (
   lessonId: number
 ): Promise<ScoreEntry[]> => {
-  const snapshot = await getDocs(collection(db, "scores"));
+  const snapshot = await getDocs(collection(db, "scores")); // 'db' est maintenant correctement défini
   const ranking: ScoreEntry[] = [];
 
   snapshot.forEach((doc) => {
