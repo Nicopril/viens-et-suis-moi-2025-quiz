@@ -12,8 +12,6 @@ exports.handler = async function(event, context) {
     }
 
     // Récupérez la clé API Gemini des variables d'environnement de Netlify Function
-    // ATTENTION : Cette variable doit être ajoutée SÉPARÉMENT des variables du site (voir point 7 de la Partie 2 dans ma réponse précédente)
-    // Nommez-la GEMINI_API_KEY (sans VITE_) sur Netlify
     const geminiApiKey = process.env.GEMINI_API_KEY;
 
     if (!geminiApiKey) {
@@ -25,7 +23,34 @@ exports.handler = async function(event, context) {
     }
 
     const genAI = new GoogleGenerativeAI(geminiApiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" }); // Vous pouvez ajuster le modèle si besoin
+    // Le modèle est défini ici, nous le gardons pour l'appel generateContent plus tard
+    const model = genAI.getGenerativeModel({ model: "gemini-pro" }); 
+
+    // --- DÉBUT DU CODE DE DÉBOGAGE POUR LISTER LES MODÈLES ---
+    try {
+        console.log("Tentative de lister les modèles Gemini...");
+        const { models } = await genAI.listModels(); // Appel à listModels
+        console.log("Modèles Gemini disponibles pour cette clé API et ce projet :");
+        let geminiProFound = false;
+        for (const modelItem of models) { // Renommage en 'modelItem' pour éviter un conflit avec 'model' déclaré plus haut
+            const supportsGenerateContent = modelItem.supportedGenerationMethods.includes('generateContent');
+            console.log(`- Nom: ${modelItem.name}, Prend en charge generateContent: ${supportsGenerateContent}`);
+            if (modelItem.name === 'models/gemini-pro' && supportsGenerateContent) {
+                geminiProFound = true;
+            }
+        }
+        if (!geminiProFound) {
+            console.warn("ATTENTION: Le modèle 'models/gemini-pro' ne semble pas disponible ou ne prend pas en charge 'generateContent' avec cette clé API.");
+            // Si le modèle n'est pas trouvé ou supporté, vous pourriez envisager de retourner une erreur spécifique ici
+            // Ou d'essayer un autre modèle si vous en avez un de secours.
+        }
+    } catch (listError) {
+        console.error("Erreur lors de la tentative de lister les modèles Gemini:", listError);
+        // Ne pas retourner d'erreur 500 ici, juste un avertissement,
+        // car le problème principal est l'appel à generateContent.
+    }
+    // --- FIN DU CODE DE DÉBOGAGE ---
+
 
     let requestBody;
     try {
@@ -59,24 +84,22 @@ exports.handler = async function(event, context) {
     Assure-toi que la "correctAnswer" est EXACTEMENT une des options.`;
 
     try {
-        const result = await model.generateContent(prompt);
+        // L'appel original qui cause l'erreur 500
+        const result = await model.generateContent(prompt); 
         const response = await result.response;
         let text = response.text();
 
         // Nettoyage de la réponse de Gemini pour s'assurer que c'est un JSON valide
-        // Gemini peut parfois inclure du texte explicatif avant ou après le JSON
         const jsonMatch = text.match(/\[\s*{[^]*}\s*\]/); // Regex pour trouver un tableau JSON
         if (jsonMatch) {
             text = jsonMatch[0]; // Utilise seulement la partie JSON
         } else {
-            // Si la regex échoue, tente de parser directement (moins robuste)
             console.warn("Regex de nettoyage JSON non matchée. Tentative de parsing direct.");
         }
 
         let quizData;
         try {
             quizData = JSON.parse(text);
-            // Valider que c'est un tableau et que chaque élément est un objet
             if (!Array.isArray(quizData) || !quizData.every(item => typeof item === 'object' && item !== null)) {
                 throw new Error("Le format JSON n'est pas un tableau d'objets valide.");
             }
