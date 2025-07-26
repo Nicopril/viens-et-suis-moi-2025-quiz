@@ -34,7 +34,8 @@ export const generateQuiz = functions.https.onRequest(async (req, res) => {
 
   const genAI = new GoogleGenerativeAI(geminiApiKey);
 
-  // Debugging: Attempt to list available Gemini models
+  // Debugging: Attempt to list available Gemini models (COMMENTÉ TEMPORAIREMENT)
+  /*
   try {
     console.log("Tentative de lister les modèles Gemini...");
     // Ajout d'une vérification de type (type guard) pour listModels
@@ -73,6 +74,7 @@ export const generateQuiz = functions.https.onRequest(async (req, res) => {
       listError
     );
   }
+  */
 
   // Initialize the Gemini Pro model
   const model = genAI.getGenerativeModel({ model: "gemini-pro" });
